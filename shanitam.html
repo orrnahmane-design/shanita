@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shanita — דף מנהל</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#fbf7f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1216" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@700;900&display=swap">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#fbf7f4; --surface:#fff; --tint:#f4e9ee;
+  --ink:#3d2b33; --ink-soft:#5a4650; --accent:#8a2f5c; --accent-ink:#fff;
+  --line:#e6dadf;
+  --f-display:'Frank Ruhl Libre',Georgia,serif;
+  --f-body:'Assistant',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1a1216; --surface:#241a20; --tint:#2b1d25;
+    --ink:#f3e9ed; --ink-soft:#c9b4bd; --accent:#f0a9c6; --accent-ink:#1a1216;
+    --line:#3a2b33;
+  }
+}
+*{box-sizing:border-box}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:900px;margin-inline:auto;padding:clamp(16px,4vw,32px)}
+
+header{border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;
+  background:color-mix(in srgb,var(--bg) 82%,transparent);
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;padding-block:.85rem}
+.brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;color:inherit}
+.brand img{width:38px;height:38px;border-radius:50%}
+.brand b{font-family:var(--f-display);font-size:1.3rem}
+.brand span{color:var(--ink-soft);font-size:.9rem}
+.tools{display:flex;gap:.5rem;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:44px;
+  padding:.5rem 1.1rem;border-radius:999px;font:inherit;font-weight:600;text-decoration:none;
+  cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink);transition:background .18s}
+.btn:hover{background:var(--tint)}
+.btn-primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn-primary:hover{filter:brightness(1.08);background:var(--accent)}
+
+.hero{padding-block:clamp(20px,4vw,36px) 0}
+.hero h1{font-family:var(--f-display);font-size:clamp(1.7rem,4vw,2.4rem);line-height:1.15;margin-bottom:.4rem}
+.hero p{color:var(--ink-soft);max-width:52ch}
+
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,2vw,16px);margin-block:clamp(18px,3vw,28px)}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.1rem}
+.stat b{display:block;font-family:var(--f-display);font-size:1.9rem;line-height:1.1}
+.stat span{font-size:.88rem;color:var(--ink-soft)}
+@media (max-width:520px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}}
+
+.notice{display:flex;gap:.7rem;align-items:flex-start;padding:.8rem 1rem;border-radius:var(--r);
+  background:var(--tint);color:var(--ink-soft);font-size:.92rem;margin-bottom:1.2rem}
+.notice b{color:var(--ink)}
+.notice .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:.5rem;flex:none}
+
+h2{font-family:var(--f-display);font-size:1.35rem;margin-bottom:.9rem}
+h3.day{font-size:.92rem;color:var(--ink-soft);font-weight:700;margin:1.4rem 0 .6rem}
+h3.day:first-child{margin-top:0}
+
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:.6rem}
+.ev-head{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
+.ev-head h3{font-size:1rem;font-weight:700;order:2}
+.ev-time{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);background:var(--tint);
+  border-radius:8px;padding:.1rem .55rem;font-size:.9rem;order:1}
+.ev-note{font-size:.9rem;color:var(--ink-soft);overflow-wrap:anywhere;margin-top:.3rem}
+.ev-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+.mini{font:inherit;font-size:.85rem;font-weight:600;min-height:38px;padding:.3rem .85rem;border-radius:999px;
+  border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center}
+.mini:hover{background:var(--tint)}
+.mini-quiet{color:var(--ink-soft)}
+#empty{color:var(--ink-soft);padding:1rem 0}
+
+#toast{position:fixed;inset-inline-start:50%;translate:-50% 0;bottom:20px;z-index:50;
+  background:var(--ink);color:var(--bg);padding:.7rem 1.2rem;border-radius:999px;font-size:.92rem;
+  font-weight:600;box-shadow:0 12px 30px -14px rgba(0,0,0,.5)}
+#toast[data-kind="err"]{background:var(--accent);color:var(--accent-ink)}
+
+footer{border-top:1px solid var(--line);margin-top:clamp(28px,5vw,48px);color:var(--ink-soft);font-size:.88rem}
+footer .wrap{padding-block:1.2rem;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <img src="logo-round.png" alt="" width="38" height="38">
+      <b>Shanita</b><span>דף מנהל</span>
+    </a>
+    <div class="tools">
+      <button class="btn" id="export" type="button">ייצוא לאקסל</button>
+      <button class="btn" id="clear" type="button">ניקוי הרשימה</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <h1>התורים שלי</h1>
+    <p>כל תור שנשלח מהאתר מגיע לכאן. הדף עצמאי — לא תלוי באתר ולא דורש התחברות.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="today-count">0</b><span>תורים היום</span></div>
+    <div class="stat"><b id="week-count">0</b><span>בשבוע הקרוב</span></div>
+    <div class="stat"><b id="all-count">0</b><span>סה״כ תורים</span></div>
+  </div>
+
+  <p class="notice">
+    <span class="dot" aria-hidden="true"></span>
+    <span>עדכון אחרון <b id="last-check">—</b> · <b id="sent-state">עוד לא נשלחו תורים</b></span>
+  </p>
+
+  <section aria-labelledby="list-h">
+    <h2 id="list-h">כל התורים</h2>
+    <div id="list"></div>
+    <p id="empty">עוד לא הגיעו תורים. ברגע שלקוחה תשלח בקשה מהאתר — היא תופיע כאן.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Shanita · דף מנהל פנימי</span>
+    <span>א׳–ה׳ · 09:00–16:30</span>
+  </div>
+</footer>
+
+<div id="toast" hidden></div>
+
+<script src="manage.js"></script>
+</body>
+</html>
