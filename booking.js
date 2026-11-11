@@ -10,6 +10,7 @@
   var nameInput = d.getElementById('b-name');
   var phoneInput = d.getElementById('b-phone');
   var noteInput = d.getElementById('b-note-text');
+  var STORAGE_KEY = 'shanita-bookings';
 
   if (!form || !dateInput || !slotWrap) return;
 
@@ -40,6 +41,40 @@
     return closedDays.indexOf(date.getDay()) !== -1;
   }
 
+  function getBookings() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveBookings(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function getTakenSlotsForDate(selectedDate) {
+    return getBookings()
+      .filter(function (item) { return item && item.date === selectedDate; })
+      .map(function (item) { return item.time; })
+      .filter(Boolean);
+  }
+
+  function showBookingOverlay() {
+    var overlay = d.getElementById('booking-confirmation');
+    if (!overlay) return;
+
+    overlay.hidden = false;
+    overlay.classList.add('show');
+    window.clearTimeout(showBookingOverlay.timer);
+    showBookingOverlay.timer = window.setTimeout(function () {
+      overlay.classList.remove('show');
+      window.setTimeout(function () {
+        overlay.hidden = true;
+      }, 250);
+    }, 20000);
+  }
+
   function buildDateRange() {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -54,14 +89,13 @@
     }
 
     var slots = [];
-    var startMinutes = Math.round(openHour * 60);
-    var endMinutes = Math.round(closeHour * 60);
     var now = new Date();
     var nowMinutes = now.getHours() * 60 + now.getMinutes();
     var current = new Date(day);
     current.setHours(Math.floor(openHour), Math.round((openHour % 1) * 60), 0, 0);
+    var closeDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), Math.floor(closeHour), Math.round((closeHour % 1) * 60), 0, 0);
 
-    while (current.getTime() < new Date(day.getFullYear(), day.getMonth(), day.getDate(), Math.floor(closeHour), Math.round((closeHour % 1) * 60), 0, 0).getTime()) {
+    while (current.getTime() < closeDate.getTime()) {
       var totalMinutes = current.getHours() * 60 + current.getMinutes();
       var isToday = toLocalDateString(day) === toLocalDateString(now);
       var tooSoon = isToday && (totalMinutes <= nowMinutes + 30);
@@ -93,6 +127,7 @@
     }
 
     var slots = getAvailableSlotsForDate(selectedDate);
+    var takenSlots = getTakenSlotsForDate(selectedDate);
     if (!slots.length) {
       var closedText = isClosedDay(selectedDay) ? 'הסלון סגור ביום הזה' : 'אין שעות זמינות בתאריך הנבחר';
       slotWrap.innerHTML = '<p class="hint">' + closedText + '</p>';
@@ -100,17 +135,24 @@
     }
 
     slots.forEach(function (slotDate) {
+      var timeValue = slotDate.toTimeString().slice(0, 5);
+      var isTaken = takenSlots.indexOf(timeValue) !== -1;
+
       var label = d.createElement('label');
-      label.className = 'slot';
+      label.className = 'slot' + (isTaken ? ' slot-taken' : '');
+      if (isTaken) {
+        label.setAttribute('aria-disabled', 'true');
+      }
 
       var input = d.createElement('input');
       input.type = 'radio';
       input.name = 'chosen-slot';
-      input.value = slotDate.toTimeString().slice(0, 5);
-      input.setAttribute('aria-label', 'שעה ' + input.value);
+      input.value = timeValue;
+      input.disabled = isTaken;
+      input.setAttribute('aria-label', 'שעה ' + timeValue);
 
       var text = d.createElement('span');
-      text.textContent = input.value;
+      text.textContent = isTaken ? timeValue + ' · תפוס' : timeValue;
 
       label.appendChild(input);
       label.appendChild(text);
@@ -164,23 +206,35 @@
       date: dateInput.value,
       time: selectedTime,
       note: noteInput.value.trim(),
+      status: 'pending',
       createdAt: new Date().toISOString()
     };
 
-    var list = JSON.parse(localStorage.getItem('shanita-bookings') || '[]');
+    var list = getBookings();
+    var duplicate = list.some(function (item) {
+      return item && item.date === booking.date && item.time === booking.time;
+    });
+
+    if (duplicate) {
+      setError('השעה שנבחרה כבר תפוסה. אנא בחרי שעה אחרת.');
+      return;
+    }
+
     list.push(booking);
-    localStorage.setItem('shanita-bookings', JSON.stringify(list));
+    saveBookings(list);
 
     if (window.ShanitaAlert) {
       window.ShanitaAlert(booking);
     }
+
+    showBookingOverlay();
 
     var done = d.getElementById('b-done');
     if (done) {
       done.hidden = false;
       var text = d.getElementById('b-done-text');
       if (text) {
-        text.textContent = 'הבקשה נשלחה ל-Shanita. השעה ' + booking.time + ' ב-' + booking.date + ' נקלטה בהצלחה.';
+        text.textContent = 'הבקשה נשלחה ל-Shanita. השעה ' + booking.time + ' ב-' + booking.date + ' נקלטה בהצלחה. חשוב: זהו תור בהמתנה לאישור.';
       }
       done.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
