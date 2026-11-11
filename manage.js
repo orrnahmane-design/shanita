@@ -34,6 +34,51 @@
     return time || '—';
   }
 
+  function normalizePhone(phone) {
+    if (!phone) return '';
+    var cleaned = String(phone).replace(/[^\d+]/g, '');
+    if (!cleaned) return '';
+    if (cleaned.indexOf('+') === 0) return cleaned;
+    if (cleaned.indexOf('972') === 0) return '+' + cleaned;
+    if (cleaned.indexOf('0') === 0) return '+972' + cleaned.slice(1);
+    return '+' + cleaned;
+  }
+
+  function createMessageUrl(item, type) {
+    var clean = normalizePhone(item.phone);
+    if (!clean) return '';
+
+    var text = 'היי ' + (item.name || 'לקוחה') + ',\n' +
+      'שמחתי לקבל את הבקשה שלך לתור ב-Shanita.\n' +
+      'תאריך: ' + (item.date || '—') + ', שעה: ' + (item.time || '—') + '.\n' +
+      'זאת בקשה בלבד, וצריך לחכות לאישור התור.';
+
+    if (type === 'wa') {
+      var waNumber = clean.replace(/\D/g, '');
+      if (waNumber.indexOf('972') === 0) {
+        waNumber = waNumber.slice(3);
+      }
+      return 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(text);
+    }
+
+    return 'sms:' + clean + '?body=' + encodeURIComponent(text);
+  }
+
+  function sendVia(type, item) {
+    var url = createMessageUrl(item, type);
+    if (!url) {
+      alert('אין מספר טלפון למשתמש זה.');
+      return;
+    }
+
+    if (type === 'wa') {
+      window.open(url, '_blank', 'noopener');
+      return;
+    }
+
+    window.location.href = url;
+  }
+
   function renderStats(items) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -98,6 +143,22 @@
         var actions = d.createElement('div');
         actions.className = 'ev-actions';
 
+        var wa = d.createElement('button');
+        wa.type = 'button';
+        wa.className = 'mini mini-primary';
+        wa.textContent = 'WhatsApp';
+        wa.addEventListener('click', function () {
+          sendVia('wa', item);
+        });
+
+        var sms = d.createElement('button');
+        sms.type = 'button';
+        sms.className = 'mini';
+        sms.textContent = 'SMS';
+        sms.addEventListener('click', function () {
+          sendVia('sms', item);
+        });
+
         var del = d.createElement('button');
         del.type = 'button';
         del.className = 'mini mini-quiet';
@@ -108,6 +169,8 @@
           render();
         });
 
+        actions.appendChild(wa);
+        actions.appendChild(sms);
         actions.appendChild(del);
         row.appendChild(head);
         row.appendChild(note);
