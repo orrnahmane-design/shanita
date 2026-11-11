@@ -79,6 +79,18 @@
     window.location.href = url;
   }
 
+  function getStatusLabel(status) {
+    if (status === 'approved') return 'אושר';
+    if (status === 'canceled') return 'בוטל';
+    return 'ממתין לאישור';
+  }
+
+  function getStatusClass(status) {
+    if (status === 'approved') return 'status-approved';
+    if (status === 'canceled') return 'status-canceled';
+    return 'status-pending';
+  }
+
   function renderStats(items) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -140,8 +152,44 @@
         note.className = 'ev-note';
         note.textContent = formatDate(item.date) + ' · ' + (item.phone || '—') + (item.note ? ' · ' + item.note : '');
 
+        var status = d.createElement('span');
+        status.className = 'status ' + getStatusClass(item.status || 'pending');
+        status.textContent = getStatusLabel(item.status || 'pending');
+
         var actions = d.createElement('div');
         actions.className = 'ev-actions';
+
+        var approve = d.createElement('button');
+        approve.type = 'button';
+        approve.className = 'mini mini-primary';
+        approve.textContent = 'אישור תור';
+        approve.disabled = item.status === 'approved' || item.status === 'canceled';
+        approve.addEventListener('click', function () {
+          var next = getBookings().map(function (entry) {
+            if (entry.createdAt === item.createdAt) {
+              return Object.assign({}, entry, { status: 'approved' });
+            }
+            return entry;
+          });
+          localStorage.setItem('shanita-bookings', JSON.stringify(next));
+          render();
+        });
+
+        var cancel = d.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'mini mini-quiet';
+        cancel.textContent = 'ביטול תור';
+        cancel.disabled = item.status === 'canceled';
+        cancel.addEventListener('click', function () {
+          var next = getBookings().map(function (entry) {
+            if (entry.createdAt === item.createdAt) {
+              return Object.assign({}, entry, { status: 'canceled' });
+            }
+            return entry;
+          });
+          localStorage.setItem('shanita-bookings', JSON.stringify(next));
+          render();
+        });
 
         var wa = d.createElement('button');
         wa.type = 'button';
@@ -169,10 +217,13 @@
           render();
         });
 
+        actions.appendChild(approve);
+        actions.appendChild(cancel);
         actions.appendChild(wa);
         actions.appendChild(sms);
         actions.appendChild(del);
         row.appendChild(head);
+        row.appendChild(status);
         row.appendChild(note);
         row.appendChild(actions);
         listEl.appendChild(row);

@@ -55,7 +55,9 @@
 
   function getTakenSlotsForDate(selectedDate) {
     return getBookings()
-      .filter(function (item) { return item && item.date === selectedDate; })
+      .filter(function (item) {
+        return item && item.date === selectedDate && item.status !== 'canceled';
+      })
       .map(function (item) { return item.time; })
       .filter(Boolean);
   }
@@ -212,7 +214,7 @@
 
     var list = getBookings();
     var duplicate = list.some(function (item) {
-      return item && item.date === booking.date && item.time === booking.time;
+      return item && item.date === booking.date && item.time === booking.time && item.status !== 'canceled';
     });
 
     if (duplicate) {
